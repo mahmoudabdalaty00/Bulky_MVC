@@ -1,4 +1,6 @@
 ﻿
+using BulkyWeb.Data;
+
 namespace BulkyWeb.Controllers
 {
 	public class CategoryController : Controller

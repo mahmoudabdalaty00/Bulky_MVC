@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Serialization;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace BulkyWeb.Models
