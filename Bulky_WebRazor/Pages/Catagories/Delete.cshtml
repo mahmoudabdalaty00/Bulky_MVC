@@ -1,0 +1,71 @@
+﻿@page
+@model Bulky_WebRazor.Pages.Catagories.DeleteModel
+@{
+}
+
+<form method="post">
+
+	<div class="border p-3 mt-3">
+
+		<div class="row pb-2">
+			<h2 class="text-primary">
+				Delete Category
+			</h2>
+			<hr />
+
+
+		</div>
+
+
+		<div class="mb-3 row p-1 ">
+			<label asp-for="Category.Id"   class="p-0"></label>
+			<input asp-for="Category.Id" disabled type="number" class="form-control" />
+
+		</div>
+
+		<div class="mb-3 row p-1 ">
+			<label asp-for=" Category.Name" class="p-0"></label>
+			<input disabled asp-for="Category.Name" type="text" class="form-control" />
+			<span asp-validation-for="Category.Name" class="text-danger ">
+
+			</span>
+		</div>
+		<br />
+
+		<br />
+		<div class="mb-3 row p-1">
+			<label asp-for=" Category.DisplayOrder" class="p-0"></label>
+			<input disabled asp-for="Category.DisplayOrder" type="text" class="form-control" />
+			<span asp-validation-for="Category.DisplayOrder" class="text-danger ">
+
+			</span>
+		</div>
+
+		<div class="row pb-2">
+
+			<div class="col-6 col-md-3">
+				<button type="submit" class="btn btn-dang form-control">
+					Delete
+				</button>
+
+			</div>
+
+			<div class="col-6 col-md-3">
+				<a asp-page="/Catagories/index"  class="form-control   btn btn-outline-secondary">
+					Back to list
+				</a>
+			</div>
+		</div>
+
+
+
+	</div>
+</form>
+
+
+@section Scripts {
+
+	@{
+		<partial name="_ValidationScriptsPartial" />
+	}
+}
