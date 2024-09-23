@@ -20,7 +20,6 @@ namespace Bulky.DataAccess.Repository.RepositoriesClasses
 
 		public void Save()
 		{
-			_db.SaveChanges();
 		}
 
 		public void Update(Category category)

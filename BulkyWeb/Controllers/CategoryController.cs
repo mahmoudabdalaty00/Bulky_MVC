@@ -6,16 +6,16 @@ namespace BulkyWeb.Controllers
 {
 	public class CategoryController : Controller
 	{
-		private readonly ICategoryRepository _Repo;
+		private readonly IUnitOfWork  _unitOfWork;
 
-		public CategoryController(ICategoryRepository context)
+		public CategoryController(IUnitOfWork unitOfWork)
 		{
-			_Repo = context;
+			_unitOfWork = unitOfWork;
 		}
 
 		public IActionResult Index()
 		{
-			List<Category> list = _Repo.GetAll().ToList();
+			List<Category> list = _unitOfWork.Category.GetAll().ToList();
 			return View(list);
 		}
 	
@@ -40,8 +40,8 @@ namespace BulkyWeb.Controllers
 		
 			if (ModelState.IsValid)
 			{
-				 _Repo.Add(category);
-				_Repo.Save();
+				 _unitOfWork.Category.Add(category);
+				_unitOfWork.Save();
 				TempData["success"] = "Category Created Successfully ";
 				return RedirectToAction("Index");
 			}
@@ -56,7 +56,7 @@ namespace BulkyWeb.Controllers
 			{
 				return NotFound("there is not any Category with this Id ");
 			}
-			var category = _Repo.Get(u => u.Id == Id);
+			var category = _unitOfWork.Category.Get(u => u.Id == Id);
 
 			if (category == null)
 			{
@@ -72,8 +72,8 @@ namespace BulkyWeb.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-			_Repo.Update(category);
-				_Repo.Save();
+				_unitOfWork.Category.Update(category);
+				_unitOfWork.Save();
 				TempData["success"] = "Category Edited Successfully ";
 				return RedirectToAction("Index");
 			}
@@ -91,7 +91,7 @@ namespace BulkyWeb.Controllers
 			{
 				return NotFound("there is not any Category with this Id ");
 			}
-			var category = _Repo.Get(u => u.Id == Id);
+			var category = _unitOfWork.Category.Get(u => u.Id == Id);
 			if (category == null)
 			{
 				return NotFound("there is not any Category with this Id ");
@@ -104,14 +104,14 @@ namespace BulkyWeb.Controllers
 		[HttpPost, ActionName("Delete")]
 		public IActionResult DeletePost(int Id)
 		{
-			var cat = _Repo.Get(u => u.Id == Id);
+			var cat = _unitOfWork.Category.Get(u => u.Id == Id);
 			if (cat == null)
 			{
 				return NotFound("there is not any Category with this Id ");
 
 			}
-			_Repo.Remove(cat);
-			_Repo.Save();			TempData["success"] = "Category Delete Successfully ";
+			_unitOfWork.Category.Remove(cat);
+			_unitOfWork.Save();			TempData["success"] = "Category Delete Successfully ";
 			return RedirectToAction("Index");
 
 	 
