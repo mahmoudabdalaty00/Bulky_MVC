@@ -35,7 +35,8 @@ namespace BulkyWeb.Data
                     ListPrice = 44.99,
                     Price = 39.99,
                     Price50 = 37.99,
-                    Price100 = 34.99
+                    Price100 = 34.99,
+                    ImageURL ="" ,
                 }
                 , new Product
                 {
@@ -47,8 +48,10 @@ namespace BulkyWeb.Data
                     ListPrice = 59.99,
                     Price = 54.99,
                     Price50 = 52.99,
-                    Price100 = 49.99
-                },
+                    Price100 = 49.99,
+					ImageURL = "",
+
+				},
                 new Product
                 {
                     Id = 3,
@@ -59,8 +62,10 @@ namespace BulkyWeb.Data
                     ListPrice = 39.99,
                     Price = 34.99,
                     Price50 = 32.99,
-                    Price100 = 29.99
-                },
+                    Price100 = 29.99,
+					ImageURL = "",
+
+				},
                 new Product
                 {
                     Id = 4,
@@ -71,8 +76,10 @@ namespace BulkyWeb.Data
                     ListPrice = 49.99,
                     Price = 44.99,
                     Price50 = 42.99,
-                    Price100 = 39.99
-                },
+                    Price100 = 39.99,
+					ImageURL = "",
+
+				},
                 new Product
                 {
                     Id = 5,
@@ -83,12 +90,14 @@ namespace BulkyWeb.Data
                     ListPrice = 29.99,
                     Price = 24.99,
                     Price50 = 22.99,
-                    Price100 = 19.99
-                }
+                    Price100 = 19.99,
+					ImageURL = "",
+
+				}
 
 
 
-                );
+				);
 
 
         }

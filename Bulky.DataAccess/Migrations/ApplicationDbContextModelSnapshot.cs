@@ -33,11 +33,18 @@ namespace Bulky.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ISBM")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageURL")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -59,6 +66,8 @@ namespace Bulky.DataAccess.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Products");
 
                     b.HasData(
@@ -66,8 +75,10 @@ namespace Bulky.DataAccess.Migrations
                         {
                             Id = 1,
                             Author = "Charlie Green",
+                            CategoryId = 0,
                             Description = "Learn the basics of machine learning.",
                             ISBM = "978-1-23-456789-0",
+                            ImageURL = "",
                             ListPrice = 44.990000000000002,
                             Price = 39.990000000000002,
                             Price100 = 34.990000000000002,
@@ -78,8 +89,10 @@ namespace Bulky.DataAccess.Migrations
                         {
                             Id = 2,
                             Author = "Bob Brown",
+                            CategoryId = 0,
                             Description = "A comprehensive guide to data structures and algorithms.",
                             ISBM = "978-0-98-765432-1",
+                            ImageURL = "",
                             ListPrice = 59.990000000000002,
                             Price = 54.990000000000002,
                             Price100 = 49.990000000000002,
@@ -90,8 +103,10 @@ namespace Bulky.DataAccess.Migrations
                         {
                             Id = 3,
                             Author = "Alice Johnson",
+                            CategoryId = 0,
                             Description = "Build modern web applications with ASP.NET Core.",
                             ISBM = "978-0-12-345678-9",
+                            ImageURL = "",
                             ListPrice = 39.990000000000002,
                             Price = 34.990000000000002,
                             Price100 = 29.989999999999998,
@@ -102,8 +117,10 @@ namespace Bulky.DataAccess.Migrations
                         {
                             Id = 4,
                             Author = "Jane Smith",
+                            CategoryId = 0,
                             Description = "Deep dive into advanced C# concepts.",
                             ISBM = "978-1-23-456789-7",
+                            ImageURL = "",
                             ListPrice = 49.990000000000002,
                             Price = 44.990000000000002,
                             Price100 = 39.990000000000002,
@@ -114,8 +131,10 @@ namespace Bulky.DataAccess.Migrations
                         {
                             Id = 5,
                             Author = "John Doe",
+                            CategoryId = 0,
                             Description = "An introduction to C# programming.",
                             ISBM = "978-3-16-148410-0",
+                            ImageURL = "",
                             ListPrice = 29.989999999999998,
                             Price = 24.989999999999998,
                             Price100 = 19.989999999999998,
@@ -169,6 +188,17 @@ namespace Bulky.DataAccess.Migrations
                             DisplayOrder = 4,
                             Name = "ad"
                         });
+                });
+
+            modelBuilder.Entity("Bulky.Models.Models.Product", b =>
+                {
+                    b.HasOne("BulkyWeb.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
                 });
 #pragma warning restore 612, 618
         }

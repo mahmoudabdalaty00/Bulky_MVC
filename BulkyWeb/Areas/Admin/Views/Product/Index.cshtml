@@ -5,42 +5,58 @@
 }
 
 
-    <div class="container">
-        <h1 class="mt-5">Book Details</h1>
+       <div class="container">
+        <div class="row pt-4">
+            <div class="col-6">
+                <h2 class="text-primary"> 
+                    Books
+                </h2>
+            </div>
+            <div class="col-6 text-end mb-4 border-3">
+               <a asp-controller="Product" asp-action="Upsert" class="btn btn-success" >
+                <i class="bi bi-plus-circle "></i>  Create New Category
+               </a>
+            </div>
+        </div>
     <table class="table table-hover table-bordered table-stripe">
         <thead>
             <tr>
-                <th scope="col">ID</th>
+                 
                 <th scope="col">Title</th>
-                <th scope="col">Description</th>
-                <th scope="col">Author</th>
-                <th scope="col"> List Price</th>
-                <th scope="col">ISBN</th>
-                <th scope="col">Price for 1-50</th>
+               @*  <th scope="col">Description</th> *@
+                <th  >Author</th>
+                  <th scope="col">ISBN</th>
+                <th  >Price</th> 
+                <th scope="col">Category</th>
+              @*   <th scope="col">Price for 1-50</th>
                 <th scope="col">Price for 50+</th>
-                <th scope="col">Price for 100+</th>
+                <th scope="col">Price for 100+</th> *@
             </tr>
         </thead>
         <tbody>
             @foreach(var book in Model )
             {
                 <tr class="table-active">
-                <td>@book.Id</td>
+                
                 <td>@book.Title</td>
-                <td>@book.Description</td>
+            @*     <td>@book.Description</td> *@
                 <td>@book.Author</td>
-                <td>@book.ISBM</td>
-                <td>@book.ListPrice</td>
-                <td>@book.Price</td>
+                  <td>@book.ISBM</td>
+					<td>@book.ListPrice</td>
+                     <td> @book.CategoryId </td>
+            @*     <td>@book.Price</td>
                 <td>@book.Price50</td>
-                <td>@book.Price100</td>
+                <td>@book.Price100</td *@
                     <td>
                         <div class="w-75 btn-group" role="group">
-                            <a asp-controller="Category" asp-action="Edit" asp-route-Id="@book.Id" class="btn btn-primary mx-2">
+                            <a asp-controller="Product" asp-action="Upsert" asp-route-Id="@book.Id" class="btn btn-primary mx-2">
                                 <i class="bi bi-pencil-fill"></i>  Edit
                             </a>
-                            <a asp-controller="Category" asp-action="Delete" asp-route-Id="@book.Id" class="btn btn-danger mx-2">
+                            <a asp-controller="Product" asp-action="Delete" asp-route-Id="@book.Id" class="btn btn-danger mx-2">
                                 <i class="bi bi-trash-fill"></i>    Delete
+                            </a>
+                            <a asp-controller="Product" asp-action="Details" asp-route-Id="@book.Id" class="btn btn-outline-success mx-2">
+                                <i class="bi bi-files-alt"></i>   Details
                             </a>
                         </div>
 
