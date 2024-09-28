@@ -1,7 +1,7 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
- 
+
 using Microsoft.AspNetCore.Mvc.Rendering;
- 
+
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -17,11 +17,11 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
         }
         public IActionResult Index()
         {
-            List<Product> objProductList = _unitOfWork.Product.GetAll().ToList();
+            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
 
             return View(objProductList);
         }
-
+        #region  Upsert 
         public IActionResult Upsert(int? id)
         {
             ProductVM productVM = new()
@@ -74,7 +74,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
                         file.CopyTo(fileStream);
                     }
 
-                    productVM.Product.ImageURL   = @"\images\Product\" + fileName;
+                    productVM.Product.ImageURL = @"\images\Product\" + fileName;
                 }
 
                 if (productVM.Product.Id == 0)
@@ -101,33 +101,86 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             }
         }
 
+        #endregion
 
+
+        #region Delete 
+        //public IActionResult Delete(int? id)
+        //{
+        //    if (id == null || id == 0)
+        //    {
+        //        return NotFound();
+        //    }
+        //    Product? productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
+
+        //    if (productFromDb == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(productFromDb);
+        //}
+        //[HttpPost, ActionName("Delete")]
+        //public IActionResult DeletePOST(int? id)
+        //{
+        //    Product? obj = _unitOfWork.Product.Get(u => u.Id == id);
+        //    if (obj == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    _unitOfWork.Product.Remove(obj);
+        //    _unitOfWork.Save();
+        //    TempData["success"] = "Product deleted successfully";
+        //    return RedirectToAction("Index");
+        //}
+
+        #endregion
+
+
+        #region APi Calls 
+
+
+        [HttpGet]
+        public IActionResult GetAll()
+        {
+            List<Product> objProductList = _unitOfWork.Product.GetAll(includeProperties: "Category").ToList();
+            return Json(new { data = objProductList });
+        }
+        
+    
         public IActionResult Delete(int? id)
         {
-            if (id == null || id == 0)
+            var objToDelete = _unitOfWork.Product.Get(p => p.Id == id);
+            if(objToDelete == null  )
             {
-                return NotFound();
+                return Json(new
+                {
+                    succes = false , message = "Error While Deleting" ,
+                });
             }
-            Product? productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
 
-            if (productFromDb == null)
+            var oldImagePath =
+            Path.Combine(_webHostEnvironment.WebRootPath,
+            objToDelete.ImageURL.TrimStart('\\'));
+
+            if (System.IO.File.Exists(oldImagePath))
             {
-                return NotFound();
+                System.IO.File.Delete(oldImagePath);
             }
-            return View(productFromDb);
-        }
-        [HttpPost, ActionName("Delete")]
-        public IActionResult DeletePOST(int? id)
-        {
-            Product? obj = _unitOfWork.Product.Get(u => u.Id == id);
-            if (obj == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Product.Remove(obj);
+
+            _unitOfWork.Product.Remove(objToDelete);
             _unitOfWork.Save();
-            TempData["success"] = "Product deleted successfully";
-            return RedirectToAction("Index");
+         
+            
+            
+            return Json(new
+            {
+                succes = true,
+                message = " Deleting Success",
+            });
+         
         }
+
+        #endregion
+
     }
 }
