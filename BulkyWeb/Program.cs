@@ -1,11 +1,17 @@
 using Bulky.DataAccess.Repository.IRepository;
 using Bulky.DataAccess.Repository.RepositoriesClasses;
+using Bulky.Utility;
 using BulkyWeb.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
+var connectionString = builder
+	.Configuration
+	.GetConnectionString("ApplicationDbContextConnection")
+	?? throw new InvalidOperationException(
+		"Connection string 'ApplicationDbContextConnection' not found.");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -19,13 +25,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 		builder.Configuration
 		.GetConnectionString("Connection")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser , IdentityRole>
+	(options => options.SignIn.RequireConfirmedAccount = true)
+	.AddEntityFrameworkStores<ApplicationDbContext>();
 
 
 
 
 //builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped< IEmailSender ,EmailSender >();
 builder.Services.AddRazorPages();
 var app = builder.Build();
 
