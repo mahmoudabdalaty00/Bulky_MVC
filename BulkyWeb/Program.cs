@@ -25,9 +25,22 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 		builder.Configuration
 		.GetConnectionString("Connection")));
 
+
+
+
+
+
 builder.Services.AddIdentity<IdentityUser , IdentityRole>
 	(options => options.SignIn.RequireConfirmedAccount = true)
-	.AddEntityFrameworkStores<ApplicationDbContext>();
+	.AddEntityFrameworkStores<ApplicationDbContext>()
+	.AddDefaultTokenProviders();
+
+
+builder.Services.ConfigureApplicationCookie(options => {
+    options.LoginPath = $"/Identity/Account/Login";
+    options.LogoutPath = $"/Identity/Account/Logout";
+    options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+});
 
 
 
