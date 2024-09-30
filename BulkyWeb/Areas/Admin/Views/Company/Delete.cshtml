@@ -1,0 +1,146 @@
+﻿@*  @model Company
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+
+
+
+<div class="card shadow border-0 mt-4">
+	<div class="card-header bg-secondary bg-gradient mt-0 py-3 ">
+
+		<div class="row ">
+			<div class="col-12 text-center">
+
+				<h2 class="text-primary">
+					Create Category
+				</h2>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="card-body p-4">
+
+
+
+		<form method="post" class="row">
+
+			<div class="border p-3 mt-3">
+
+				<div class="row pb-2">
+
+					<hr />
+
+
+				</div>
+
+				<div asp-validation-summary="All"></div>
+
+
+
+				<div class="mb-3 row p-1 ">
+					<label asp-for="Title" class="p-0"></label>
+					<input disabled  asp-for="Title" type="text" class="form-control" />
+					<span asp-validation-for="Title" class="text-danger ">
+
+					</span>
+				</div>
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for="Description" class="p-0"></label>
+					<input disabled asp-for="Description" type="text" class="form-control" />
+					<span asp-validation-for="Description" class="text-danger ">
+
+					</span>
+				</div>
+
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for="ISBM" class="p-0"></label>
+					<input disabled asp-for="ISBM" type="text" class="form-control" />
+					<span asp-validation-for="ISBM" class="text-danger ">
+
+					</span>
+				</div>
+
+
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for=" Author" class="p-0"></label>
+					<input disabled asp-for="Author" type="text" class="form-control" />
+					<span asp-validation-for="Author" class="text-danger ">
+
+					</span>
+				</div>
+
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for="ListPrice" class="p-0"></label>
+					<input disabled asp-for="ListPrice" type="text" class="form-control" />
+					<span asp-validation-for="ListPrice" class="text-danger ">
+
+					</span>
+				</div>
+
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for="Price" class="p-0"></label>
+					<input disabled asp-for="Price" type="text" class="form-control" />
+					<span asp-validation-for="Price" class="text-danger ">
+
+					</span>
+				</div>
+
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for="Price50" class="p-0"></label>
+					<input disabled asp-for="Price50" type="text" class="form-control" />
+					<span asp-validation-for="Price50" class="text-danger ">
+
+					</span>
+				</div>
+
+				<br />
+				<div class="mb-3 row p-1">
+					<label asp-for="Price100" class="p-0"></label>
+					<input disabled asp-for="Price100" type="text" class="form-control" />
+					<span asp-validation-for="Price100" class="text-danger ">
+
+					</span>
+				</div>
+
+				<div class="row pb-2">
+
+					<div class="col-6 col-md-3">
+						<button type="submit" class="btn btn-primary form-control">
+							Delete
+						</button>
+
+					</div>
+
+					<div class="col-6 col-md-3">
+						<a asp-controller="Product" asp-action="Index" class="form-control   btn btn-outline-secondary">
+							Back to list
+						</a>
+					</div>
+				</div>
+
+
+			</div>
+		</form>
+		<br />
+	</div>
+	<br />
+
+</div>
+
+@section Scripts {
+
+	@{
+		<partial name="_ValidationScriptsPartial" />
+	}
+}
+ *@

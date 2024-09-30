@@ -50,7 +50,7 @@ namespace Bulky.DataAccess.Repository.RepositoriesClasses
 			if (!string.IsNullOrEmpty(includeProperties))
 			{
 				foreach (var includeProp in includeProperties
-					.Split(new char[] { ',' }
+					.Split( new char[] { ',' }
 				, StringSplitOptions.RemoveEmptyEntries))
 				{
 					query = query.Include(includeProp);
