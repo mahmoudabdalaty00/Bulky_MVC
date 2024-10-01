@@ -6,7 +6,10 @@
 		IProductRepository Product { get; }
 		ICompanyRepository Company { get; }
 		IShoppingCartRepository ShoppingCart { get; }
-		IApplicationUserRepository  ApplicationUserRepository { get; }
-		void Save();
+		IApplicationUserRepository  ApplicationUser { get; }
+        IOrderDetailsRepository OrderDetails { get; }
+        IOrderHeaderRepository  OrderHeader { get; }
+
+        void Save();
 	}
 }
