@@ -5,19 +5,17 @@ using BulkyWeb.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
 var connectionString = builder
 	.Configuration
 	.GetConnectionString("ApplicationDbContextConnection")
 	?? throw new InvalidOperationException(
 		"Connection string 'ApplicationDbContextConnection' not found.");
-
-// Add services to the container.
-builder.Services.AddControllersWithViews();
-
-
-
 
 
 builder.Services.AddDbContext<ApplicationDbContext>(
@@ -26,6 +24,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(
 		.GetConnectionString("Connection")));
 
 
+
+
+builder.Services.Configure<StripeSetting>(
+	builder.Configuration.GetSection("Stripe")
+	);
 
 
 
@@ -60,6 +63,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+StripeConfiguration.ApiKey = builder.Configuration.GetSection("Stripe:SecretKey").Get<string>();
+
 
 app.UseRouting();
 app.UseAuthentication();

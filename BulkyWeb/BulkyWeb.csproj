@@ -29,6 +29,7 @@
 	  <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.8" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
 	  <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.5" />
+	  <PackageReference Include="Stripe.net" Version="46.0.0" />
   </ItemGroup>
 
 </Project>
