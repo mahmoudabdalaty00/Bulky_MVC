@@ -1,7 +1,6 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using Stripe;
+using Stripe.Checkout;
 using System.Security.Claims;
 
 namespace BulkyWeb.Areas.Admin.Controllers
@@ -26,12 +25,12 @@ namespace BulkyWeb.Areas.Admin.Controllers
             return View();
         }
 
-          public IActionResult Details(int orderId)
+        public IActionResult Details(int orderId)
         {
             orderVM = new()
             {
                 OrderHeader = _unitOfWork.OrderHeader.
-                Get(u => u.Id == orderId , includeProperties:"ApplicationUser"),
+                Get(u => u.Id == orderId, includeProperties: "ApplicationUser"),
 
                 OrderDetails = _unitOfWork.OrderDetails
                 .GetAll(u => u.OrderHeaderId == orderId, includeProperties: "Product"),
@@ -45,7 +44,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
 
         [HttpPost]
-        [Authorize(Roles = SD.Role_Admin+","+SD.Role_Employee)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
         public IActionResult UpdateOrderDetail()
         {
             var orderHeaderDb = _unitOfWork.OrderHeader.Get(u => u.Id == orderVM.OrderHeader.Id);
@@ -59,12 +58,12 @@ namespace BulkyWeb.Areas.Admin.Controllers
             orderHeaderDb.PostalCode = orderVM.OrderHeader.PostalCode;
 
 
-            if(!string.IsNullOrEmpty(orderVM.OrderHeader.Carrier))
+            if (!string.IsNullOrEmpty(orderVM.OrderHeader.Carrier))
             {
                 orderHeaderDb.Carrier = orderVM.OrderHeader.Carrier;
             }
 
-            if(!string.IsNullOrEmpty(orderVM.OrderHeader.TracingNumber))
+            if (!string.IsNullOrEmpty(orderVM.OrderHeader.TracingNumber))
             {
                 orderHeaderDb.TracingNumber = orderVM.OrderHeader.TracingNumber;
             }
@@ -76,7 +75,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Details), new
             {
-                orderId = orderHeaderDb.Id 
+                orderId = orderHeaderDb.Id
             });
         }
 
@@ -84,10 +83,160 @@ namespace BulkyWeb.Areas.Admin.Controllers
 
 
 
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult StartProcessing()
+        {
+            _unitOfWork.OrderHeader.UpdateStatus(orderVM.OrderHeader.Id, SD.StatusInProcessw);
+            _unitOfWork.Save();
+            TempData["success"] = "Order Status  Update Successfully ";
+
+            return RedirectToAction(nameof(Details), new
+            {
+                orderId = orderVM.OrderHeader.Id
+            });
+        }
+
+
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult ShippingOrder()
+        {
+            var orderHeaderDb = _unitOfWork.OrderHeader.Get(u => u.Id == orderVM.OrderHeader.Id);
+
+
+            orderHeaderDb.TracingNumber = orderVM.OrderHeader.TracingNumber;
+            orderHeaderDb.Carrier = orderVM.OrderHeader.Carrier;
+            orderHeaderDb.OrderStatus = orderVM.OrderHeader.OrderStatus;
+            orderHeaderDb.ShippingDate = DateTime.Now;
+
+            if (orderHeaderDb.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                orderHeaderDb.PaymentDueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(30));
+            }
+
+            _unitOfWork.OrderHeader.Update(orderHeaderDb);
+            _unitOfWork.Save();
+            _unitOfWork.OrderHeader.UpdateStatus(orderVM.OrderHeader.Id, SD.StatusShipped);
+            _unitOfWork.Save();
+            TempData["success"] = "Order Shipped Successfully ";
+
+            return RedirectToAction(nameof(Details), new
+            {
+                orderId = orderVM.OrderHeader.Id
+            });
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Employee)]
+        public IActionResult CanclOrder()
+        {
+            var orderHeaderDb = _unitOfWork.OrderHeader.Get(u => u.Id == orderVM.OrderHeader.Id);
+
+
+            if (orderHeaderDb.PaymentStatus == SD.PaymentStatusApproved)
+            {
+                var option = new RefundCreateOptions
+                {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = orderHeaderDb.PaymentIntentId,
+                };
+                var service = new RefundService();
+                Refund refund = service.Create(option);
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeaderDb.Id, SD.StatusCancelled, SD.StatusRefunded);
+
+
+
+            }
+            else
+            {
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeaderDb.Id, SD.StatusCancelled, SD.StatusRefunded);
+
+            }
+
+            _unitOfWork.Save();
+            TempData["success"] = "Order Shipped Successfully ";
+
+            return RedirectToAction(nameof(Details), new
+            {
+                orderId = orderVM.OrderHeader.Id
+            });
+
+        }
 
 
 
 
+
+
+        [ActionName(nameof(Details))]
+        [HttpPost]
+        public IActionResult PayNow()
+        {
+
+
+            orderVM.OrderHeader = _unitOfWork.OrderHeader.
+                  Get(u => u.Id == orderVM.OrderHeader.Id, includeProperties: "ApplicationUser");
+
+            orderVM.OrderDetails = _unitOfWork.OrderDetails
+           .GetAll(u => u.OrderHeaderId == orderVM.OrderHeader.Id, includeProperties: "Product");
+
+                //stripe Logic 
+                 var domain = "https://localhost:7102/";
+            var options = new SessionCreateOptions
+            {
+                SuccessUrl = domain + $"admin/order/PaymentConfirmation?orderHeaderId={orderVM.OrderHeader.Id}",
+                CancelUrl = domain + $"admin/order/details?orderId{orderVM.OrderHeader.Id}",
+                LineItems = new List<SessionLineItemOptions>(),
+                Mode = "payment",
+            };
+            foreach (var item in orderVM.OrderDetails)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100), // $20.50 => 2050
+                        Currency = "usd",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Product.Title
+                        }
+                    },
+                    Quantity = item.Count
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+            var service = new SessionService();
+            Session session = service.Create(options);
+            _unitOfWork.OrderHeader.UpdateStripePaymentId(orderVM.OrderHeader.Id, session.Id, session.PaymentIntentId);
+            _unitOfWork.Save();
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+
+        }
+
+
+        public IActionResult PaymentConfirmation(int orderHeaderId)
+        {
+            OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderHeaderId, includeProperties: "ApplicationUser");
+            if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
+            {
+                //this is an order by company
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitOfWork.OrderHeader.UpdateStripePaymentId(orderHeaderId, session.Id, session.PaymentIntentId);
+                    _unitOfWork.OrderHeader.UpdateStatus(orderHeaderId,  orderHeader.OrderStatus, SD.PaymentStatusApproved);
+                    _unitOfWork.Save();
+                }
+            }
+           
+            return View(orderHeaderId);
+        }
 
         #region APi Calls 
 
@@ -97,17 +246,17 @@ namespace BulkyWeb.Areas.Admin.Controllers
         {
             IEnumerable<OrderHeader> objOrderHeaders;
 
-            if(User.IsInRole(SD.Role_Admin )|| User.IsInRole(SD.Role_Employee))
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
             {
                 objOrderHeaders = _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList();
 
             }
             else
             {
-                var claimsIdentity  = (ClaimsIdentity)User.Identity;
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
                 var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-                objOrderHeaders = _unitOfWork.OrderHeader.GetAll(u => u.ApplicationUserId ==userId , includeProperties:"ApplicationUser");
+                objOrderHeaders = _unitOfWork.OrderHeader.GetAll(u => u.ApplicationUserId == userId, includeProperties: "ApplicationUser");
             }
             switch (status)
             {
@@ -139,7 +288,7 @@ namespace BulkyWeb.Areas.Admin.Controllers
         }
 
 
-        
+
 
         #endregion
 
